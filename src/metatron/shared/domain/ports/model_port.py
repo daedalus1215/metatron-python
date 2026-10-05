@@ -2,6 +2,7 @@
 
 from collections.abc import Mapping
 from dataclasses import dataclass
+from functools import cached_property
 
 
 @dataclass(frozen=True)
@@ -50,3 +51,7 @@ class SourceTreeProjection:
     externals: Mapping[str, int]
     diagnostics: tuple[DiagnosticProjection, ...]
     coverage: CoverageProjection
+
+    @cached_property
+    def by_path(self) -> Mapping[str, SourceFileProjection]:
+        return {file.path: file for file in self.files}
