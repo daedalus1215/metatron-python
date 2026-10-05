@@ -13,6 +13,7 @@ from metatron.shared.domain.ports.config_port import (
     TierProjection,
 )
 from metatron.shared.domain.ports.model_port import (
+    ArchModelProjection,
     CoverageProjection,
     ImportEdgeProjection,
     SourceFileProjection,
@@ -102,3 +103,17 @@ def create_mock_source_tree(
         diagnostics=(),
         coverage=CoverageProjection(len(files), len(files), (), {}),
     )
+
+
+def create_mock_arch_model(**overrides: Any) -> ArchModelProjection:
+    model = ArchModelProjection(
+        project="notes",
+        root="app",
+        tiers=create_mock_arch_config().tiers,
+        flow=("action", "service"),
+        skip_rules=(),
+        tree=create_mock_source_tree({}),
+        findings=(),
+        violations=(),
+    )
+    return replace(model, **overrides)
