@@ -1,0 +1,181 @@
+# The default profile: a FastAPI backend laid out in the PD engineering patterns.
+#
+# A project overrides any key in its own [tool.metatron] table. `add-patterns`
+# prepends to `patterns` instead of replacing it. Everything here is data: no
+# project should need to edit the scanner.
+
+root = "app"
+out-dir = ".metatron"
+
+ignore = [
+    '(^|/)\.venv/',
+    '(^|/)venv/',
+    '(^|/)__pycache__/',
+    '(^|/)\.tox/',
+    '(^|/)build/',
+    '(^|/)dist/',
+    '(^|/)node_modules/',
+]
+
+# The architectural layers, ordered the way a request travels.
+tiers = [
+    { name = "Entry", sub = "HTTP / CLI / queue surface" },
+    { name = "Contract", sub = "DTOs, commands & params" },
+    { name = "Service", sub = "orchestration" },
+    { name = "Aggregator", sub = "cross-domain" },
+    { name = "Transaction Script", sub = "use-case logic" },
+    { name = "Mapping", sub = "mappers, assemblers, converters" },
+    { name = "Persistence", sub = "repositories & outbound calls" },
+    { name = "Domain Model", sub = "entities & ports" },
+    { name = "Wiring", sub = "modules, registries, config" },
+    { name = "Platform", sub = "bootstrap & migrations" },
+    { name = "Test", sub = "specs & fixtures" },
+]
+
+# File -> pattern, tested against the root-relative path. First match wins, so
+# the shape of a name beats the folder it happens to sit in.
+patterns = [
+    { id = "spec", tier = "Test", test = '_spec\.py$|(^|/)__specs__/|(^|/)tests?/|(^|/)test_[^/]*\.py$|_test\.py$|(^|/)conftest\.py$' },
+    { id = "test-util", tier = "Test", test = '(^|/)test_utils|mock_factories|(^|/)fixtures/' },
+    { id = "migration", tier = "Platform", test = '(^|/)(migrations|alembic)/' },
+    { id = "bootstrap", tier = "Platform", test = '^(main|__main__|app|asgi|wsgi|app_module)\.py$|(^|/)bootstrap/' },
+
+    { id = "converter", tier = "Mapping", test = '_converter\.py$' },
+    { id = "mapper", tier = "Mapping", test = '_mapper\.py$' },
+    { id = "assembler", tier = "Mapping", test = '_assembler\.py$' },
+    { id = "comparator", tier = "Mapping", test = '_comparator\.py$' },
+    { id = "predicate", tier = "Mapping", test = '_predicate\.py$' },
+    { id = "validator", tier = "Mapping", test = '_validator\.py$' },
+
+    { id = "module", tier = "Wiring", test = '_module\.py$|(^|/)(dependencies|deps)\.py$' },
+    { id = "registry", tier = "Wiring", test = '_registry\.py$' },
+
+    { id = "action", tier = "Entry", test = '_action\.py$' },
+    { id = "router", tier = "Entry", test = '_router\.py$|(^|/)routers/' },
+    { id = "webhook", tier = "Entry", test = '_webhook\.py$' },
+    { id = "listener", tier = "Entry", test = '_listener\.py$' },
+    { id = "responder", tier = "Entry", test = '_responder\.py$' },
+    { id = "guard", tier = "Entry", test = '_guard\.py$|_middleware\.py$' },
+
+    { id = "transaction-script", tier = "Transaction Script", test = '_transaction_script\.py$' },
+    { id = "projection", tier = "Transaction Script", test = '_projection\.py$' },
+    { id = "aggregator", tier = "Aggregator", test = '_aggregator\.py$' },
+    { id = "runner", tier = "Service", test = '_runner\.py$' },
+    { id = "service", tier = "Service", test = '_service\.py$' },
+    { id = "repository", tier = "Persistence", test = '_repository\.py$' },
+    { id = "remote-caller", tier = "Persistence", test = '_remote_caller\.py$' },
+    { id = "dispatcher", tier = "Persistence", test = '_dispatcher\.py$' },
+    { id = "entity", tier = "Domain Model", test = '_entity\.py$|(^|/)entities/|(^|/)models\.py$' },
+    { id = "port", tier = "Domain Model", test = '_port\.py$|(^|/)ports/' },
+
+    { id = "dto", tier = "Contract", test = '_dto\.py$|(^|/)dtos?/' },
+    { id = "schema", tier = "Contract", test = '_schema\.py$|(^|/)schemas\.py$|(^|/)schemas/' },
+    { id = "command", tier = "Contract", test = '_command\.py$' },
+    { id = "params", tier = "Contract", test = '_params?\.py$' },
+    { id = "event", tier = "Contract", test = '_event\.py$' },
+    { id = "error", tier = "Contract", test = '_(error|exception)s?\.py$|(^|/)(errors|exceptions)\.py$' },
+
+    { id = "config", tier = "Wiring", test = '_config\.py$|_constants\.py$|(^|/)(config|settings|constants)\.py$' },
+    { id = "util", tier = "Wiring", test = '_utils?\.py$|_helpers?\.py$|(^|/)utils?/' },
+    { id = "package", tier = "Wiring", test = '(^|/)__init__\.py$' },
+]
+
+# Anything unmatched lands here. A high share means the config is wrong.
+fallback = { id = "other", tier = "Wiring" }
+
+# The intended call path. A skipped station is a violation: one station is a
+# warning, two or more is critical.
+flow = ["action", "service", "transaction-script", "repository"]
+flow-aliases = { action = ["router", "webhook", "listener"], repository = ["remote-caller", "dispatcher"] }
+
+# dependency-hierarchy.md: a Domain Service may inject a Repository for a
+# simple lookup.
+allowed-skips = ["service>repository"]
+
+# Rule 1 of dependency-hierarchy.md: no same-level injection.
+no-same-level = [
+    "transaction-script", "service", "aggregator", "mapper", "assembler",
+    "converter", "comparator", "predicate", "dispatcher", "remote-caller",
+]
+
+# Top-level packages that are plumbing rather than bounded contexts.
+infra-modules = ["shared", "common", "core"]
+
+# Domains talk only through aggregators consumed via ports.
+cross-domain-gateways = ["aggregator", "port"]
+
+# The "cannot inject" cells of the dependency matrix that point up a level, or
+# across to a sibling the blackbox principle hides.
+[[forbidden]]
+from = "transaction-script"
+to = ["service"]
+why = "a Transaction Script calls upward into a Service"
+
+[[forbidden]]
+from = "aggregator"
+to = ["service"]
+why = "an Aggregator calls upward into a Service"
+
+[[forbidden]]
+from = "service"
+to = ["mapper", "assembler", "converter"]
+why = "a Service reaches past its Transaction Scripts into transformation"
+
+[[forbidden]]
+from = "mapper"
+to = ["transaction-script", "service"]
+why = "a Mapper calls upward"
+
+[[forbidden]]
+from = "assembler"
+to = ["mapper", "transaction-script", "service"]
+why = "an Assembler calls upward"
+
+[[forbidden]]
+from = "converter"
+to = ["repository", "assembler", "mapper", "transaction-script", "service"]
+why = "a Converter is pure: no data access, nothing above it"
+
+[[forbidden]]
+from = "comparator"
+to = ["converter", "predicate", "repository", "assembler", "mapper", "transaction-script", "service"]
+why = "a Comparator injects nothing"
+
+[[forbidden]]
+from = "predicate"
+to = ["converter", "comparator", "repository", "assembler", "mapper", "transaction-script", "service"]
+why = "a Predicate injects nothing"
+
+[[forbidden]]
+from = "repository"
+to = ["converter", "assembler", "mapper", "transaction-script", "service", "aggregator"]
+why = "a Repository is data access only"
+
+[[forbidden]]
+from = "dispatcher"
+to = ["transaction-script", "service"]
+why = "a Dispatcher calls upward"
+
+[[forbidden]]
+from = "remote-caller"
+to = ["transaction-script", "service"]
+why = "a Remote Caller calls upward"
+
+# dependency-hierarchy.md, layer boundary rules: dependencies point inward.
+[[layers]]
+id = "domain-no-application"
+from = "domain"
+to = "application"
+why = "the domain layer depends on the application layer"
+
+[[layers]]
+id = "infrastructure-no-application"
+from = "infrastructure"
+to = "application"
+why = "the infrastructure layer depends on the application layer"
+
+[[naming]]
+id = "domain-dto"
+title = "Dto named in the domain layer"
+test = '(^|/)domain/(.*/)?[^/]*dto[^/]*\.py$'
+why = "the domain names its inputs *_command / *_params and its outputs *_projection"
