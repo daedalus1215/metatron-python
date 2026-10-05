@@ -1,6 +1,8 @@
 """Test data for the scan context's specs."""
 
+import posixpath
 import re
+from collections.abc import Iterable, Mapping
 from dataclasses import replace
 from pathlib import Path
 from typing import Any
@@ -9,6 +11,12 @@ from metatron.shared.domain.ports.config_port import (
     ArchConfigProjection,
     PatternProjection,
     TierProjection,
+)
+from metatron.shared.domain.ports.model_port import (
+    CoverageProjection,
+    ImportEdgeProjection,
+    SourceFileProjection,
+    SourceTreeProjection,
 )
 
 TIER_NAMES = (
@@ -70,3 +78,27 @@ def create_mock_arch_config(**overrides: Any) -> ArchConfigProjection:
         naming=(),
     )
     return replace(config, **overrides)
+
+
+def create_mock_source_tree(
+    files: Mapping[str, str], edges: Iterable[tuple[str, str]] = ()
+) -> SourceTreeProjection:
+    """A tree from `{path: pattern}` and `(from, to)` pairs; module and folder follow the path."""
+    projections = tuple(
+        SourceFileProjection(
+            path=path,
+            module=path.split("/")[0] if "/" in path else "(root)",
+            folder=posixpath.dirname(path) or "(root)",
+            pattern=pattern,
+            tier=0,
+            loc=1,
+        )
+        for path, pattern in files.items()
+    )
+    return SourceTreeProjection(
+        files=projections,
+        edges=tuple(ImportEdgeProjection(source, target, 1) for source, target in edges),
+        externals={},
+        diagnostics=(),
+        coverage=CoverageProjection(len(files), len(files), (), {}),
+    )
