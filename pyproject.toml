@@ -46,3 +46,10 @@ target-version = "py311"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
+
+[tool.metatron]
+root = "src/metatron"
+add-patterns = [
+    # The container and Module/Bind: the DI plumbing every context is wired with.
+    { id = "kernel", tier = "Wiring", test = '(^|/)kernel/' },
+]
