@@ -43,6 +43,8 @@ show_missing = true
 [tool.ruff]
 line-length = 100
 target-version = "py311"
+# Fixtures break rules on purpose; they are data, not code.
+extend-exclude = ["tests/fixtures"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
