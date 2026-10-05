@@ -5,12 +5,12 @@ from collections import defaultdict
 from pathlib import Path
 
 from metatron.scan.domain.services.scan_result_projection import ScanResultProjection
-from metatron.scan.domain.utils.text_utils import count
 from metatron.shared.domain.ports.model_port import (
     ArchModelProjection,
     CoverageProjection,
     FindingProjection,
 )
+from metatron.shared.utils.text_utils import count
 
 MARK = {"good": "✓", "warn": "!", "note": "·"}
 SHOWN = 5

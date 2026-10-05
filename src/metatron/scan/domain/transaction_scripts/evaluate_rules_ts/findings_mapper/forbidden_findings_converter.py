@@ -1,10 +1,10 @@
-from metatron.scan.domain.utils.text_utils import count
 from metatron.shared.domain.ports.config_port import ArchConfigProjection
 from metatron.shared.domain.ports.model_port import (
     FindingProjection,
     InstanceProjection,
     SourceTreeProjection,
 )
+from metatron.shared.utils.text_utils import count
 
 
 class ForbiddenFindingsConverter:

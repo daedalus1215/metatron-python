@@ -1,6 +1,6 @@
 import pytest
 
-from metatron.scan.domain.utils.text_utils import count
+from metatron.shared.utils.text_utils import count
 
 
 class GivenCount:
