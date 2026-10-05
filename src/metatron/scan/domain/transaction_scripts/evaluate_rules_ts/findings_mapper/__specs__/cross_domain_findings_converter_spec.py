@@ -34,6 +34,7 @@ class GivenCrossDomainFindingsConverter:
 
             # Assert
             assert (result[0].id, result[0].tone) == ("cross-domain", "warn")
+            assert result[0].title == "1 cross-domain import bypasses the gateways"
             assert result[0].items == ("notes/service -> users/domain/user_service.py",)
             assert result[0].instances == (InstanceProjection(*edge),)
 

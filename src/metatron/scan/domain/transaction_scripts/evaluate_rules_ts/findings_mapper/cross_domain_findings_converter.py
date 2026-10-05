@@ -37,7 +37,8 @@ class CrossDomainFindingsConverter:
             FindingProjection(
                 id="cross-domain",
                 tone="warn" if hits else "good",
-                title=f"{count(len(hits), 'cross-domain import')} bypass the gateways"
+                title=f"{count(len(hits), 'cross-domain import')}"
+                f" {'bypasses' if len(hits) == 1 else 'bypass'} the gateways"
                 if hits
                 else "Every cross-domain import goes through a gateway",
                 detail=detail,
