@@ -68,6 +68,15 @@ class GivenConfigShapeValidator:
             with pytest.raises(ConfigError, match="`add-patterns` entry 1 has no `test`"):
                 target.apply(table, FILE)
 
+    class WhenATableListHoldsSomethingElse:
+        def then_it_raises(self):
+            # Arrange
+            target = ConfigShapeValidator()
+
+            # Act & Assert
+            with pytest.raises(ConfigError, match="`tiers` must be a list of tables"):
+                target.apply({"tiers": ["Entry"]}, FILE)
+
     class WhenFlowAliasesIsNotATableOfLists:
         def then_it_raises(self):
             # Arrange
