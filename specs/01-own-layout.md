@@ -1,6 +1,7 @@
 ---
 title: The tool's own layout
-status: draft
+status: implemented
+implemented: 2026-10-03
 project: metatron-python
 location: specs/01-own-layout.md
 created: 2026-10-03

@@ -1,6 +1,6 @@
 ---
 title: metatron-python specs — index and sequencing
-status: draft
+status: implemented
 project: metatron-python
 location: specs/README.md
 created: 2026-10-03

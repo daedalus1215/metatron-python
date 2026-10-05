@@ -1,6 +1,7 @@
 ---
 title: Rules and findings
-status: draft
+status: implemented
+implemented: 2026-10-03
 project: metatron-python
 location: specs/04-rules-and-findings.md
 created: 2026-10-03

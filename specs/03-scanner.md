@@ -1,6 +1,7 @@
 ---
 title: "Scanner: files, imports, classification"
-status: draft
+status: implemented
+implemented: 2026-10-03
 project: metatron-python
 location: specs/03-scanner.md
 created: 2026-10-03

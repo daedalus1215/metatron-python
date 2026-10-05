@@ -1,6 +1,7 @@
 ---
 title: Config and the fastapi profile
-status: draft
+status: implemented
+implemented: 2026-10-03
 project: metatron-python
 location: specs/02-config-and-profile.md
 created: 2026-10-03

@@ -1,6 +1,7 @@
 ---
 title: Baseline and check
-status: draft
+status: implemented
+implemented: 2026-10-03
 project: metatron-python
 location: specs/05-baseline-and-check.md
 created: 2026-10-03
