@@ -79,6 +79,7 @@ on `shared/`, which is listed in `infra-modules`.
 | `__specs__/x.spec.ts` | `__specs__/x_spec.py` | pytest collects `*_spec.py` |
 | `describe('given: …')` | `class GivenX:` / `class WhenY:` / `def then_z` | pytest's `python_classes` / `python_functions` |
 | `createApplyMock<T>()` | `create_apply_mock(T)` | `create_autospec(T, instance=True)` |
+| `let target` / `fooMock` in `beforeEach` | fixtures named `target` / `foo_mock` | module-level; each `then_` asks for the ones it asserts on |
 
 The dependency matrix in `dependency-hierarchy.md` applies unchanged:
 Actions inject Services; Services inject Transaction Scripts and ports;
