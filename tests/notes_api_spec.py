@@ -59,8 +59,14 @@ class GivenTheNotesApi:
             assert result.severity == "crit"
 
         def then_a_service_reaching_a_repository_is_allowed(self, model):
+            # Arrange
+            edge = (
+                f"{NOTES}/services/note_service.py",
+                "notes/infrastructure/repositories/note_repository.py",
+            )
+
             # Assert
-            assert not [v for v in model.violations if v.source.endswith("note_service.py")]
+            assert not [v for v in model.violations if (v.source, v.target) == edge]
 
         def then_a_context_may_land_on_a_port_but_not_an_entity(self, model):
             # Act
