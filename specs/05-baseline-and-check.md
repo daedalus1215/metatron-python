@@ -83,8 +83,9 @@ FAIL — 1 new violation. Fix it, or run `metatron-py baseline --update` to acce
 ## The gate is a test
 
 As in metatron-rust, the check can run inside the project's own test suite.
-metatron-python's own `tests/` runs `check` on this repository with no baseline
-file, and fails on any violation at all.
+metatron-python's own `tests/architecture_spec.py` builds this repository's
+model through `ModelPort` and fails on any violation at all; its committed
+`arch.baseline.json` accepts nothing.
 
 ## Acceptance
 

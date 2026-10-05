@@ -95,4 +95,6 @@ thing to pin.
 ## Acceptance
 
 - `uv run pytest` passes; `uv run pytest --cov` reports at least 80%.
-- `uv run metatron-py check` on this repository exits 0 with no baseline file.
+- `uv run metatron-py check` on this repository exits 0 against a committed
+  baseline that accepts nothing, and `tests/architecture_spec.py` fails on any
+  violation at all.
